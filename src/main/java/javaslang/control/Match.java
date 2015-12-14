@@ -182,13 +182,29 @@ public interface Match<R> extends Function<Object, R> {
 
             public <R> When.Then<R> then(Supplier<? extends R> supplier) {
                 Objects.requireNonNull(supplier, "supplier is null");
-                return then(ignored -> supplier.get());
+                return then(ignored -> {return supplier.get();});
             }
 
             public <R> When.Then<R> thenThrow(Supplier<? extends RuntimeException> supplier) {
                 Objects.requireNonNull(supplier, "supplier is null");
-                return then(ignored -> {
+                return then((Function<? super T, ? extends R>) ignored -> {
                     throw supplier.get();
+                });
+            }
+
+            public When.Then<Void> then(Consumer<? super T> action) {
+                Objects.requireNonNull(action, "action is null");
+                return then(value -> {
+                    action.accept(value);
+                    return null;
+                });
+            }
+
+            public When.Then<Void> then(Runnable action) {
+                Objects.requireNonNull(action, "action is null");
+                return then(value -> {
+                    action.run();
+                    return null;
                 });
             }
         }
@@ -214,13 +230,29 @@ public interface Match<R> extends Function<Object, R> {
 
             public Then<R> then(Supplier<? extends R> supplier) {
                 Objects.requireNonNull(supplier, "supplier is null");
-                return then(ignored -> supplier.get());
+                return then(ignored -> {return supplier.get();});
             }
 
             public Then<R> thenThrow(Supplier<? extends RuntimeException> supplier) {
                 Objects.requireNonNull(supplier, "supplier is null");
-                return then(ignored -> {
+                return then((Function<? super T, ? extends R>) ignored -> {
                     throw supplier.get();
+                });
+            }
+
+            public When.Then<R> then(Consumer<? super T> action) {
+                Objects.requireNonNull(action, "action is null");
+                return then(value -> {
+                    action.accept(value);
+                    return null;
+                });
+            }
+
+            public When.Then<R> then(Runnable action) {
+                Objects.requireNonNull(action, "action is null");
+                return then(value -> {
+                    action.run();
+                    return null;
                 });
             }
 
@@ -316,6 +348,22 @@ public interface Match<R> extends Function<Object, R> {
                     Objects.requireNonNull(supplier, "supplier is null");
                     return new Otherwise<>(ignored -> {
                         throw supplier.get();
+                    }, cases);
+                }
+
+                public Otherwise<R> otherwise(Consumer<? super Object> action) {
+                    Objects.requireNonNull(action, "action is null");
+                    return new Otherwise<>(value -> {
+                        action.accept(value);
+                        return null;
+                    }, cases);
+                }
+
+                public Otherwise<R> otherwise(Runnable action) {
+                    Objects.requireNonNull(action, "action is null");
+                    return new Otherwise<>(value -> {
+                        action.run();
+                        return null;
                     }, cases);
                 }
             }
